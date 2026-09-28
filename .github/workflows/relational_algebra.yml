@@ -1,0 +1,299 @@
+name: Relational Algebra Autograding
+
+on:
+  push:
+    paths:
+      - 'Relational_Algebra/**'
+      - '.github/workflows/relational_algebra.yml'
+  workflow_dispatch:
+
+permissions:
+  checks: write
+  actions: read
+  contents: write
+
+jobs:
+  run-autograding-tests:
+    runs-on: ubuntu-latest
+    if: github.actor != 'Malav786'
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        ref: ${{ github.ref }}
+
+    - name: Problem 1
+      id: problem-1
+      uses: classroom-resources/autograding-io-grader@v1
+      with:
+        test-name: Problem 1
+        setup-command: ''
+        command: cd Relational_Algebra && java -jar ra.jar -i ra-pizza_p1.ra
+        input: ''
+        expected-output: |-
+          -----
+          cheese
+          mushroom
+          supreme
+          -----
+          Total number of rows: 3
+        comparison-method: contains
+        timeout: 10
+        max-score: 1
+
+    - name: Problem 2
+      id: problem-2
+      uses: classroom-resources/autograding-io-grader@v1
+      with:
+        test-name: Problem 2
+        setup-command: ''
+        command: cd Relational_Algebra && java -jar ra.jar -i ra-pizza_p2.ra
+        input: ''
+        expected-output: |-
+          -----
+          Amy
+          Hil
+          -----
+          Total number of rows: 2
+        comparison-method: contains
+        timeout: 10
+        max-score: 1
+
+    - name: Problem 3
+      id: problem-3
+      uses: classroom-resources/autograding-io-grader@v1
+      with:
+        test-name: Problem 3
+        setup-command: ''
+        command: cd Relational_Algebra && java -jar ra.jar -i ra-pizza_p3.ra
+        input: ''
+        expected-output: |-
+          -----
+          Little Caesars
+          New York Pizza
+          Straw Hat
+          -----
+          Total number of rows: 3
+        comparison-method: contains
+        timeout: 10
+        max-score: 1
+
+    - name: Problem 4
+      id: problem-4
+      uses: classroom-resources/autograding-io-grader@v1
+      with:
+        test-name: Problem 4
+        setup-command: ''
+        command: cd Relational_Algebra && java -jar ra.jar -i ra-pizza_p4.ra
+        input: ''
+        expected-output: |-
+          -----
+          Little Caesars
+          -----
+          Total number of rows: 1
+        comparison-method: contains
+        timeout: 10
+        max-score: 1
+
+    - name: Problem 5
+      id: problem-5
+      uses: classroom-resources/autograding-io-grader@v1
+      with:
+        test-name: Problem 5
+        setup-command: ''
+        command: cd Relational_Algebra && java -jar ra.jar -i ra-pizza_p5.ra
+        input: ''
+        expected-output: |-
+          -----
+          Amy
+          Ben
+          Dan
+          Eli
+          Gus
+          -----
+          Total number of rows: 5
+        comparison-method: contains
+        timeout: 10
+        max-score: 1
+
+    - name: Problem 6
+      id: problem-6
+      uses: classroom-resources/autograding-io-grader@v1
+      with:
+        test-name: Problem 6
+        setup-command: ''
+        command: cd Relational_Algebra && java -jar ra.jar -i ra-pizza_p6.ra
+        input: ''
+        expected-output: |-
+          -----
+          cheese
+          pepperoni
+          sausage
+          -----
+          Total number of rows: 3
+        comparison-method: contains
+        timeout: 10
+        max-score: 1
+
+    - name: Problem 7
+      id: problem-7
+      uses: classroom-resources/autograding-io-grader@v1
+      with:
+        test-name: Problem 7
+        setup-command: ''
+        command: cd Relational_Algebra && java -jar ra.jar -i ra-pizza_p7.ra
+        input: ''
+        expected-output: |-
+          -----
+          24
+          -----
+          Total number of rows: 1
+        comparison-method: contains
+        timeout: 10
+        max-score: 1
+
+    - name: Problem 8
+      id: problem-8
+      uses: classroom-resources/autograding-io-grader@v1
+      with:
+        test-name: Problem 8
+        setup-command: ''
+        command: cd Relational_Algebra && java -jar ra.jar -i ra-pizza_p8.ra
+        input: ''
+        expected-output: |-
+          -----
+          Chicago Pizza
+          -----
+          Total number of rows: 1
+        comparison-method: contains
+        timeout: 10
+        max-score: 1
+
+    - name: Problem 9
+      id: problem-9
+      uses: classroom-resources/autograding-io-grader@v1
+      with:
+        test-name: Problem 9
+        setup-command: ''
+        command: cd Relational_Algebra && java -jar ra.jar -i ra-pizza_p9.ra
+        input: ''
+        expected-output: |-
+          -----
+          Chicago Pizza
+          New York Pizza
+          Pizza Hut
+          -----
+          Total number of rows: 3
+        comparison-method: contains
+        timeout: 10
+        max-score: 1
+
+    - name: Autograding Reporter
+      uses: classroom-resources/autograding-grading-reporter@v1
+      env:
+        PROBLEM-1_RESULTS: "${{steps.problem-1.outputs.result}}"
+        PROBLEM-2_RESULTS: "${{steps.problem-2.outputs.result}}"
+        PROBLEM-3_RESULTS: "${{steps.problem-3.outputs.result}}"
+        PROBLEM-4_RESULTS: "${{steps.problem-4.outputs.result}}"
+        PROBLEM-5_RESULTS: "${{steps.problem-5.outputs.result}}"
+        PROBLEM-6_RESULTS: "${{steps.problem-6.outputs.result}}"
+        PROBLEM-7_RESULTS: "${{steps.problem-7.outputs.result}}"
+        PROBLEM-8_RESULTS: "${{steps.problem-8.outputs.result}}"
+        PROBLEM-9_RESULTS: "${{steps.problem-9.outputs.result}}"
+      with:
+        runners: problem-1,problem-2,problem-3,problem-4,problem-5,problem-6,problem-7,problem-8,problem-9
+
+    - name: Check Completion & Unlock Solutions
+      if: always()
+      env:
+        SOLUTIONS_PAYLOAD: ${{ secrets.RA_SOLUTIONS_PAYLOAD }}
+      run: |
+        python3 -c "
+        import os, re, base64, zipfile
+
+        summary_path = os.environ.get('GITHUB_STEP_SUMMARY')
+        def log_summary(msg):
+            if summary_path:
+                with open(summary_path, 'a', encoding='utf-8') as f:
+                    f.write(msg + '\n')
+
+        # 1. Count attempted problems
+        attempted = 0
+        for i in range(1, 10):
+            path = f'Relational_Algebra/ra-pizza_p{i}.ra'
+            if not os.path.exists(path):
+                path = f'ra-pizza_p{i}.ra'
+            if os.path.exists(path):
+                with open(path, 'r', encoding='utf-8') as f:
+                    code = f.read()
+                code = re.sub(r'/\*.*?\*/', '', code, flags=re.DOTALL)
+                code = re.sub(r'//.*', '', code)
+                if code.strip():
+                    attempted += 1
+
+        print(f'Attempted count: {attempted} / 9')
+
+        # 2. Check solutions unlock
+        payload = os.environ.get('SOLUTIONS_PAYLOAD', '').strip()
+        unlocked = False
+
+        if attempted == 9:
+            if payload:
+                try:
+                    data = base64.b64decode(payload)
+                    with open('temp_solutions.zip', 'wb') as f:
+                        f.write(data)
+                    os.makedirs('Relational_Algebra/solutions', exist_ok=True)
+                    os.makedirs('unlocked_solutions', exist_ok=True)
+                    with zipfile.ZipFile('temp_solutions.zip', 'r') as z:
+                        z.extractall('Relational_Algebra/solutions')
+                        z.extractall('unlocked_solutions')
+                    if os.path.exists('temp_solutions.zip'):
+                        os.remove('temp_solutions.zip')
+                    unlocked = True
+                    log_summary('### All 9 Problems Attempted!')
+                    log_summary('Official reference solutions have been unlocked! They are committed into \`Relational_Algebra/solutions/\` and available as a downloadable zip artifact (**reference-solutions**) below.')
+                except Exception as e:
+                    print(f'Error extracting solutions: {e}')
+                    log_summary('### Error')
+                    log_summary(f'Failed to extract solutions: {e}')
+            else:
+                log_summary('### 🔒 Solutions Locked (External Fork Detected)')
+                log_summary('Great job! You have submitted an attempt for all 9 problems.')
+                log_summary('')
+                log_summary('However, you are running this workflow from an **external fork**. GitHub security automatically restricts forks from accessing the organization\'s encrypted solutions vault.')
+                log_summary('')
+                log_summary('**Want official solution access?** Please contact the repository owner ([@Malav786](https://github.com/Malav786)) to be invited to **Malav\'s DB Lab**!')
+        else:
+            log_summary('### Reference Solutions Locked')
+            log_summary(f'Progress: **{attempted} / 9** problems attempted. Submit an attempt for all 9 problems to unlock the reference solutions!')
+
+        # Set environment for subsequent workflow steps
+        env_path = os.environ.get('GITHUB_ENV')
+        if env_path:
+            with open(env_path, 'a', encoding='utf-8') as f:
+                f.write(f'UNLOCKED=true\n' if unlocked else 'UNLOCKED=false\n')
+                f.write(f'ATTEMPTED_COUNT={attempted}\n')
+        "
+
+    - name: Commit Solutions to Repository
+      if: env.UNLOCKED == 'true'
+      run: |
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+        git add Relational_Algebra/solutions
+        if git diff --staged --quiet; then
+          echo "Solutions already committed."
+        else
+          git commit -m "Unlocked: Official Reference Solutions for all 9 problems"
+          git push origin HEAD:${{ github.ref }} || echo "Direct push skipped; solutions available as artifact."
+        fi
+
+    - name: Upload Solutions Artifact
+      if: always() && env.UNLOCKED == 'true'
+      uses: actions/upload-artifact@v4
+      with:
+        name: reference-solutions
+        path: unlocked_solutions/
+        retention-days: 30
+
