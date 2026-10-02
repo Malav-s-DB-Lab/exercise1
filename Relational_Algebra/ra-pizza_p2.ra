@@ -1,7 +1,9 @@
 /* Problem 2: Find the names of all females who eat at least one pizza served by Straw Hat. (Note: The pizza need not be eaten at Straw Hat.) */
 
-\project_{name}(
-\select_{gender = 'female' and pizzerias = 'Straw Hat'}(
-    Person \join Eats \join Serves
-)
-);
+/project{name}(
+    (\select_{Person.gender= 'female'} person
+     \join {person.name=eat.name} Eats
+    ) 
+/join_{Eats.pizza=serves.pizza}(
+    \select_{pizzeria = 'Straw Hat'} serves)
+    );
