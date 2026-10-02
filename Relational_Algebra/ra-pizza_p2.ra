@@ -2,7 +2,7 @@
 
 /project{name}(
     (\select_{Person.gender= 'female'} person
-     \join {person.name=eat.name} Eats
+     \join {person.name=Eats.name} Eats
     ) 
 /join_{Eats.pizza=serves.pizza}(
     \select_{pizzeria = 'Straw Hat'} serves)
